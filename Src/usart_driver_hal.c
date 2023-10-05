@@ -5,12 +5,21 @@
  *      Author: ingfisica
  */
 
-#include <stm32f4xx.h>
+#include "stm32f4xx.h"
 #include "usart_driver_hal.h"
 
 
 uint8_t auxRxData = 0;
-//USART_Handler_t *ptrAuxUsartHandler = {0};
+
+/* === Headers for private functions === */
+static void usart_enable_clock_peripheral(USART_Handler_t *ptrUsartHandler);
+static void usart_config_parity(USART_Handler_t *ptrUsartHandler);
+static void usart_config_datasize(USART_Handler_t *ptrUsartHandler);
+static void usart_config_stopbits(USART_Handler_t *ptrUsartHandler);
+static void usart_config_baudrate(USART_Handler_t *ptrUsartHandler);
+static void usart_config_mode(USART_Handler_t *ptrUsartHandler);
+static void usart_config_interrupt(USART_Handler_t *ptrUsartHandler);
+static void usart_enable_peripheral(USART_Handler_t *ptrUsartHandler);
 
 
 
@@ -27,18 +36,7 @@ void usart_Config(USART_Handler_t *ptrUsartHandler){
 	__disable_irq();
 
 	/* 1. Activamos la señal de reloj que viene desde el BUS al que pertenece el periférico */
-	/* Lo debemos hacer para cada uno de las posibles opciones que tengamos (USART1, USART2, USART6) */
-	if(ptrUsartHandler->ptrUSARTx == USART1){
-		RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
-	}
-
-	else if(ptrUsartHandler->ptrUSARTx == USART2){
-			RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
-		}
-
-	else if(ptrUsartHandler->ptrUSARTx == USART6){
-		RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
-	}
+	usart_enable_clock_peripheral(ptrUsartHandler);
 
 	/* 2. Configuramos el tamaño del dato, la paridad y los bit de parada */
 	/* En el CR1 estan parity (PCE y PS) y tamaño del dato (M) */
@@ -55,6 +53,51 @@ void usart_Config(USART_Handler_t *ptrUsartHandler){
 	//ptrUsartHandler->ptrUSARTx->DR = 0;
 
 	// 2.2 Configuracion del Parity:
+	usart_config_parity(ptrUsartHandler);
+
+	// 2.3 Configuramos el tamaño del dato
+	usart_config_datasize(ptrUsartHandler);
+
+	// 2.4 Configuramos los stop bits (SFR USART_CR2)
+	usart_config_stopbits(ptrUsartHandler);
+
+	// 2.5 Configuracion del Baudrate (SFR USART_BRR)
+	usart_config_baudrate(ptrUsartHandler);
+
+	// 2.6 Configuramos el modo: TX only, RX only, RXTX, disable
+	usart_config_mode(ptrUsartHandler);
+
+	// 2.8 Verificamos la configuración de las interrupciones
+	usart_config_interrupt(ptrUsartHandler);
+
+	// 2.7 Activamos el modulo serial.
+	usart_enable_peripheral(ptrUsartHandler);
+
+	/* x. Volvemos a activar las interrupciones del sistema */
+	__enable_irq();
+}
+
+
+/**/
+static void usart_enable_clock_peripheral(USART_Handler_t *ptrUsartHandler){
+	/* Lo debemos hacer para cada uno de las posibles opciones que tengamos (USART1, USART2, USART6) */
+	if(ptrUsartHandler->ptrUSARTx == USART1){
+		RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+	}
+
+	else if(ptrUsartHandler->ptrUSARTx == USART2){
+			RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+		}
+
+	else if(ptrUsartHandler->ptrUSARTx == USART6){
+		RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
+	}
+}
+
+/**
+ *
+ */
+static void usart_config_parity(USART_Handler_t *ptrUsartHandler){
 	// Verificamos si el parity esta activado o no
 	if(ptrUsartHandler->USART_Config.parity != USART_PARITY_NONE){
 
@@ -73,8 +116,14 @@ void usart_Config(USART_Handler_t *ptrUsartHandler){
 		// Si llegamos aca, es porque no deseamos tener el parity-check
 		ptrUsartHandler->ptrUSARTx->CR1 &= ~USART_CR1_PCE;
 	}
+}
 
-	// 2.3 Configuramos el tamaño del dato
+/**
+ * Esta funcion debe estar relacionada con el parity.
+ * Si NO hay parity,el tamaño debe ser 8bit.
+ * SI HAY parity, el tamaño debe ser 9 bit.
+ */
+static void usart_config_datasize(USART_Handler_t *ptrUsartHandler){
 	// Verificamos cual es el tamaño de dato que deseamos
 	if(ptrUsartHandler->USART_Config.datasize == USART_DATASIZE_8BIT){
 
@@ -92,8 +141,12 @@ void usart_Config(USART_Handler_t *ptrUsartHandler){
 		// Deseamos trabajar con datos de 9 bits
 		ptrUsartHandler->ptrUSARTx->CR1 |= USART_CR1_M;
 	}
+}
 
-	// 2.4 Configuramos los stop bits (SFR USART_CR2)
+/**
+ *
+ */
+static void usart_config_stopbits(USART_Handler_t *ptrUsartHandler){
 	switch(ptrUsartHandler->USART_Config.stopbits){
 	case USART_STOPBIT_1: {
 		// Debemoscargar el valor 0b00 en los dos bits de STOP
@@ -126,10 +179,12 @@ void usart_Config(USART_Handler_t *ptrUsartHandler){
 		break;
 	}
 	}
+}
 
-	// 2.5 Configuracion del Baudrate (SFR USART_BRR)
-	// Ver tabla de valores (Tabla 73), Frec = 16MHz, overr = 0;
-
+/**
+ * Ver tabla de valores (Tabla 73), Frec = 16MHz, overr = 0;
+ */
+static void usart_config_baudrate(USART_Handler_t *ptrUsartHandler){
 	// Caso para configurar cuando se trabaja con el Cristal Interno
 	switch(ptrUsartHandler->USART_Config.baudrate){
 		case USART_BAUDRATE_9600:
@@ -177,12 +232,12 @@ void usart_Config(USART_Handler_t *ptrUsartHandler){
 			ptrUsartHandler->ptrUSARTx->BRR = 0x008B;
 			break;
 		}
+}
 
-
-
-
-
-	// 2.6 Configuramos el modo: TX only, RX only, RXTX, disable
+/**
+ *
+ */
+static void usart_config_mode(USART_Handler_t *ptrUsartHandler){
 	switch(ptrUsartHandler->USART_Config.mode){
 	case USART_MODE_TX:
 	{
@@ -220,45 +275,54 @@ void usart_Config(USART_Handler_t *ptrUsartHandler){
 		break;
 	}
 	}
+}
 
-	// 2.8 Verificamos la configuración de las interrupciones
+
+/**
+ *
+ */
+static void usart_config_interrupt(USART_Handler_t *ptrUsartHandler){
 	// 2.8a Interrupción por recepción
-	if(ptrUsartHandler->USART_Config.enableIntRX == USART_RX_INTERRUP_ENABLE){
-		// Como está activada, debemos configurar la interrupción por recepción
-		/* Debemos activar la interrupción RX en la configuración del USART */
-		ptrUsartHandler->ptrUSARTx->CR1 |= USART_CR1_RXNEIE;
+		if(ptrUsartHandler->USART_Config.enableIntRX == USART_RX_INTERRUP_ENABLE){
+			// Como está activada, debemos configurar la interrupción por recepción
+			/* Debemos activar la interrupción RX en la configuración del USART */
+			ptrUsartHandler->ptrUSARTx->CR1 |= USART_CR1_RXNEIE;
 
-		/* Debemos matricular la interrupción en el NVIC */
-		/* Lo debemos hacer para cada uno de las posibles opciones que tengamos (USART1, USART2, USART6) */
-		if(ptrUsartHandler->ptrUSARTx == USART1){
-			__NVIC_EnableIRQ(USART1_IRQn);
-			__NVIC_SetPriority(USART1_IRQn, 2);
-		}
-
-		else if(ptrUsartHandler->ptrUSARTx == USART2){
-			__NVIC_EnableIRQ(USART2_IRQn);
-			__NVIC_SetPriority(USART2_IRQn, 2);
+			/* Debemos matricular la interrupción en el NVIC */
+			/* Lo debemos hacer para cada uno de las posibles opciones que tengamos (USART1, USART2, USART6) */
+			if(ptrUsartHandler->ptrUSARTx == USART1){
+				__NVIC_EnableIRQ(USART1_IRQn);
+				__NVIC_SetPriority(USART1_IRQn, 2);
 			}
 
-		else if(ptrUsartHandler->ptrUSARTx == USART6){
-			__NVIC_EnableIRQ(USART6_IRQn);
-			__NVIC_SetPriority(USART6_IRQn, 2);
+			else if(ptrUsartHandler->ptrUSARTx == USART2){
+				__NVIC_EnableIRQ(USART2_IRQn);
+				__NVIC_SetPriority(USART2_IRQn, 2);
+				}
+
+			else if(ptrUsartHandler->ptrUSARTx == USART6){
+				__NVIC_EnableIRQ(USART6_IRQn);
+				__NVIC_SetPriority(USART6_IRQn, 2);
+			}
 		}
-	}
-	else{
+		else{
 
-	}
+		}
+}
 
-	// 2.7 Activamos el modulo serial.
+
+/**
+ *
+ */
+static void usart_enable_peripheral(USART_Handler_t *ptrUsartHandler){
 	if(ptrUsartHandler->USART_Config.mode != USART_MODE_DISABLE){
 		ptrUsartHandler->ptrUSARTx->CR1 |= USART_CR1_UE;
 	}
-
-	/* x. Volvemos a activar las interrupciones del sistema */
-	__enable_irq();
 }
 
-/* función para escribir un solo char */
+/*
+ * función para escribir un solo char
+ */
 int usart_WriteChar(USART_Handler_t *ptrUsartHandler, int dataToSend ){
 	while( !(ptrUsartHandler->ptrUSARTx->SR & USART_SR_TXE)){
 		__NOP();
@@ -269,7 +333,9 @@ int usart_WriteChar(USART_Handler_t *ptrUsartHandler, int dataToSend ){
 	return dataToSend;
 }
 
-/**/
+/*
+ *
+ */
 void usart_writeMsg(USART_Handler_t *ptrUsartHandler, char *msgToSend ){
 	while(*msgToSend != '\0'){
 		usart_WriteChar(ptrUsartHandler, *msgToSend);
