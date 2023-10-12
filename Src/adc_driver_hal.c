@@ -393,163 +393,164 @@ void adc_ConfigAnalogPin(uint8_t adcChannel){
 	gpio_Config(&handlerADCPin);
 }
 
+
 /* Configuracion para hacer conversiones en multiples canales y en un orden especifico */
-void adc_ConfigMultichannel (ADC_Config_t *adcConfig, uint8_t numeroDeCanales){
+//void adc_ConfigMultichannel (ADC_Config_t *adcConfig, uint8_t numeroDeCanales){
+//
+//	/* 2. Activamos la senal de reloj para el periferico ADC1(bus APB2) */
+//	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+//
+//	//Limpiamos los registros antes de comenzar a configurar
+//	ADC1->CR1 = 0;
+//	ADC1->CR2 = 0;
+//
+//	/* 6. Desactivamos el "continuos mode" */
+//	ADC1 -> CR2 &= ~ADC_CR2_CONT;
+//
+//	/* 4. Configuramos el modo Scan como activado */
+//	ADC1 -> CR1 |= ADC_CR1_SCAN;
+//
+//	/* 8. Configuramos la secuencia y cuantos elementos hay en la secuencias */
+//	ADC1->SQR1 |= (numeroDeCanales - 1) << ADC_SQR1_L_Pos;
+//
+//	//Ciclo para recorrer cada elemento de arreglo y configurarlo
+//
+//	for (uint8_t i = 0; i <= numeroDeCanales; i++){
+//		/* 1. Configuramos el PinX para que cumpla la funcion del canal analogo deseado */
+//		//configAnalogPin(adcConfig->channel);
+//		adc_ConfigAnalogPin(adcConfig[i].channel);
+//
+//		/*Comenzamos la configuracion de ADC1*/
+//
+//		/* 3. Resolucion del ADC */
+//
+//		switch (adcConfig[i].resolution)
+//		{
+//		case RESOLUTION_12_BIT:
+//		{
+//			ADC1->CR1 &= ~ADC_CR1_RES_0;
+//			ADC1->CR1 &= ~ADC_CR1_RES_1;
+//			break;
+//		}
+//		case RESOLUTION_10_BIT:
+//		{
+//			ADC1->CR1 |= ADC_CR1_RES_0;
+//			ADC1->CR1 &= ~ADC_CR1_RES_1;
+//			break;
+//		}
+//		case RESOLUTION_8_BIT:
+//		{
+//			ADC1->CR1 &= ~ADC_CR1_RES_0;
+//			ADC1->CR1 |= ADC_CR1_RES_1;
+//			break;
+//		}
+//		case RESOLUTION_6_BIT:
+//		{
+//			ADC1->CR1 |= ADC_CR1_RES_0;
+//			ADC1->CR1 |= ADC_CR1_RES_1;
+//			break;
+//		}
+//		default:
+//		{
+//			break;
+//		}
+//		}
+//
+//		/* 5. Configuramos la alineacion de los datos (derecha o izquierda)*/
+//
+//		if (adcConfig[i]. dataAlignment  == ALIGNMENT_RIGHT){
+//			//Alineacion a la derecha (esta es la forma 'natural'
+//			ADC1 -> CR2 &= ~ADC_CR2_ALIGN;
+//		}else{
+//			//Alineacion a la izquierda (para alguno calculos matematicos
+//			ADC1 -> CR2 |= ADC_CR2_ALIGN;
+//		}
+//
+//		switch(adcConfig[i].channel){
+//		case CHANNEL_0: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_0);
+//			break;
+//		}
+//		case CHANNEL_1: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_1);
+//			break;
+//		}
+//		case CHANNEL_2: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_2);
+//			break;
+//		}
+//		case CHANNEL_3: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_3);
+//			break;
+//		}
+//		case CHANNEL_4: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_4);
+//			break;
+//		}
+//		case CHANNEL_5: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_5);
+//			break;
+//		}
+//		case CHANNEL_6: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_6);
+//			break;
+//		}
+//
+//		case CHANNEL_7: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_7);
+//			break;
+//		}
+//		case CHANNEL_8: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_8);
+//			break;
+//		}
+//		case CHANNEL_9: {
+//			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_9);
+//			break;
+//		}
+//		case CHANNEL_10: {
+//			ADC1->SMPR1 |= (adcConfig[i].samplingPeriod << 3*(CHANNEL_10 - CHANNEL_10));
+//			break;
+//		}
+//		case CHANNEL_11: {
+//			ADC1->SMPR1 |= (adcConfig[i].samplingPeriod << 3*(CHANNEL_11 - CHANNEL_10));
+//			break;
+//		}
+//		default:
+//			break;
+//		}
+//
+//		//Asignamos el canal de la conversion a la primera posicion en la secuencia
+//		if (numeroDeCanales <= 6){
+//			ADC1->SQR3 |= (adcConfig[i].channel <<	i*5);
+//		}
+//
+//	}
+//
+//
+//	/* 9. Configuramos el prescaler del ADC en 2:1 (el mas rapido que se puede tener */
+//	ADC->CCR &= ~ADC_CCR_ADCPRE;
+//
+//	/* 10. Desactivamos las interrupciones globales */
+//	__disable_irq();
+//
+//	/* 11. Activamos la interrupcion debida a la finalizacion de una canversion EOC */
+//	ADC1->CR1 |= ADC_CR1_EOCIE;
+//
+//	/* 11a Interrupción al final de cada conversión de canal  */
+//	ADC1->CR2 |= ADC_CR2_EOCS;
+//
+//	/* 11b. Matriculamos la interrupcion en el NVIC */
+//	__NVIC_EnableIRQ(ADC_IRQn);
+//
+//	/* 12. Activamos el moduloADC */
+//	ADC1 -> CR2 |= ADC_CR2_ADON;
+//
+//	/* 13. Activamos las interrupcions globales */
+//	__enable_irq();
+//}
 
-	/* 2. Activamos la senal de reloj para el periferico ADC1(bus APB2) */
-	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
-
-	//Limpiamos los registros antes de comenzar a configurar
-	ADC1->CR1 = 0;
-	ADC1->CR2 = 0;
-
-	/* 6. Desactivamos el "continuos mode" */
-	ADC1 -> CR2 &= ~ADC_CR2_CONT;
-
-	/* 4. Configuramos el modo Scan como activado */
-	ADC1 -> CR1 |= ADC_CR1_SCAN;
-
-	/* 8. Configuramos la secuencia y cuantos elementos hay en la secuencias */
-	ADC1->SQR1 |= (numeroDeCanales - 1) << ADC_SQR1_L_Pos;
-
-	//Ciclo para recorrer cada elemento de arreglo y configurarlo
-
-	for (uint8_t i = 0; i <= numeroDeCanales; i++){
-		/* 1. Configuramos el PinX para que cumpla la funcion del canal analogo deseado */
-		//configAnalogPin(adcConfig->channel);
-		adc_ConfigAnalogPin(adcConfig[i].channel);
-
-		/*Comenzamos la configuracion de ADC1*/
-
-		/* 3. Resolucion del ADC */
-
-		switch (adcConfig[i].resolution)
-		{
-		case RESOLUTION_12_BIT:
-		{
-			ADC1->CR1 &= ~ADC_CR1_RES_0;
-			ADC1->CR1 &= ~ADC_CR1_RES_1;
-			break;
-		}
-		case RESOLUTION_10_BIT:
-		{
-			ADC1->CR1 |= ADC_CR1_RES_0;
-			ADC1->CR1 &= ~ADC_CR1_RES_1;
-			break;
-		}
-		case RESOLUTION_8_BIT:
-		{
-			ADC1->CR1 &= ~ADC_CR1_RES_0;
-			ADC1->CR1 |= ADC_CR1_RES_1;
-			break;
-		}
-		case RESOLUTION_6_BIT:
-		{
-			ADC1->CR1 |= ADC_CR1_RES_0;
-			ADC1->CR1 |= ADC_CR1_RES_1;
-			break;
-		}
-		default:
-		{
-			break;
-		}
-		}
-
-		/* 5. Configuramos la alineacion de los datos (derecha o izquierda)*/
-
-		if (adcConfig[i]. dataAlignment  == ALIGNMENT_RIGHT){
-			//Alineacion a la derecha (esta es la forma 'natural'
-			ADC1 -> CR2 &= ~ADC_CR2_ALIGN;
-		}else{
-			//Alineacion a la izquierda (para alguno calculos matematicos
-			ADC1 -> CR2 |= ADC_CR2_ALIGN;
-		}
-
-		switch(adcConfig[i].channel){
-		case CHANNEL_0: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_0);
-			break;
-		}
-		case CHANNEL_1: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_1);
-			break;
-		}
-		case CHANNEL_2: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_2);
-			break;
-		}
-		case CHANNEL_3: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_3);
-			break;
-		}
-		case CHANNEL_4: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_4);
-			break;
-		}
-		case CHANNEL_5: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_5);
-			break;
-		}
-		case CHANNEL_6: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_6);
-			break;
-		}
-
-		case CHANNEL_7: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_7);
-			break;
-		}
-		case CHANNEL_8: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_8);
-			break;
-		}
-		case CHANNEL_9: {
-			ADC1->SMPR2 |= (adcConfig[i].samplingPeriod << 3*CHANNEL_9);
-			break;
-		}
-		case CHANNEL_10: {
-			ADC1->SMPR1 |= (adcConfig[i].samplingPeriod << 3*(CHANNEL_10 - CHANNEL_10));
-			break;
-		}
-		case CHANNEL_11: {
-			ADC1->SMPR1 |= (adcConfig[i].samplingPeriod << 3*(CHANNEL_11 - CHANNEL_10));
-			break;
-		}
-		default:
-			break;
-		}
-
-		//Asignamos el canal de la conversion a la primera posicion en la secuencia
-		if (numeroDeCanales <= 6){
-			ADC1->SQR3 |= (adcConfig[i].channel <<	i*5);
-		}
-
-	}
-
-
-	/* 9. Configuramos el prescaler del ADC en 2:1 (el mas rapido que se puede tener */
-	ADC->CCR &= ~ADC_CCR_ADCPRE;
-
-	/* 10. Desactivamos las interrupciones globales */
-	__disable_irq();
-
-	/* 11. Activamos la interrupcion debida a la finalizacion de una canversion EOC */
-	ADC1->CR1 |= ADC_CR1_EOCIE;
-
-	/* 11a Interrupción al final de cada conversión de canal  */
-	ADC1->CR2 |= ADC_CR2_EOCS;
-
-	/* 11b. Matriculamos la interrupcion en el NVIC */
-	__NVIC_EnableIRQ(ADC_IRQn);
-
-	/* 12. Activamos el moduloADC */
-	ADC1 -> CR2 |= ADC_CR2_ADON;
-
-	/* 13. Activamos las interrupcions globales */
-	__enable_irq();
-}
-
-
+/* Configuracion para trigger externo */
 //void adc_ConfigTrigger(uint8_t sourceType, PWM_Handler_t *triggerSignal){
 //
 //	switch (sourceType) {
