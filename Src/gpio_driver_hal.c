@@ -55,7 +55,7 @@ void gpio_Config (GPIO_Handler_t *pGPIOHandler){
 /*
  * Enable Clock signal for specific GPIOx port
  * */
-void gpio_enable_clock_peripheral(GPIO_Handler_t *pGPIOHandler){
+static void gpio_enable_clock_peripheral(GPIO_Handler_t *pGPIOHandler){
 
 	// Verificamos que el puerto configurado si es permitido
 	assert_param(IS_GPIO_ALL_INSTANCE(pGPIOHandler->pGPIOx));
@@ -99,7 +99,7 @@ void gpio_enable_clock_peripheral(GPIO_Handler_t *pGPIOHandler){
  * - Analog
  * - Alternate Function
  * */
-void gpio_config_mode(GPIO_Handler_t *pGPIOHandler){
+static void gpio_config_mode(GPIO_Handler_t *pGPIOHandler){
 
 	uint32_t auxConfig = 0;
 
@@ -123,7 +123,7 @@ void gpio_config_mode(GPIO_Handler_t *pGPIOHandler){
  * - Push-Pull
  * - openDrain
  * */
-void gpio_config_output_type(GPIO_Handler_t *pGPIOHandler){
+static void gpio_config_output_type(GPIO_Handler_t *pGPIOHandler){
 
 	uint32_t auxConfig = 0;
 
@@ -147,7 +147,7 @@ void gpio_config_output_type(GPIO_Handler_t *pGPIOHandler){
  * - Fast
  * - HighSpeed
  * */
-void gpio_config_output_speed(GPIO_Handler_t *pGPIOHandler){
+static void gpio_config_output_speed(GPIO_Handler_t *pGPIOHandler){
 
 	uint32_t auxConfig = 0;
 
@@ -167,7 +167,7 @@ void gpio_config_output_speed(GPIO_Handler_t *pGPIOHandler){
 /*
  * Turns ON/OFF the pull-up and pull-down resistor for each PinX in selected GPIO port
  * */
-void gpio_config_pullup_pulldown(GPIO_Handler_t *pGPIOHandler){
+static void gpio_config_pullup_pulldown(GPIO_Handler_t *pGPIOHandler){
 
 	uint32_t auxConfig = 0;
 
@@ -186,7 +186,7 @@ void gpio_config_pullup_pulldown(GPIO_Handler_t *pGPIOHandler){
 /*
  * Allows to configure other functions (more specialized) on the selected PinX
  * */
-void gpio_config_alternate_function(GPIO_Handler_t *pGPIOHandler){
+static void gpio_config_alternate_function(GPIO_Handler_t *pGPIOHandler){
 
 	uint32_t auxPosition = 0;
 
