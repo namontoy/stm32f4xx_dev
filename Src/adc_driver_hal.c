@@ -155,6 +155,9 @@ static void adc_set_one_channel_sequence(ADC_Config_t *adcConfig){
 	/* Estamos seleccionando solo 1 elemento en el conteo de la secuencias */
 	ADC1->SQR1 = 0;
 
+	// Borramos las posicion que deseamos escribir.
+	ADC1->SQR3 &= ~(0b11111 << 0);
+
 	//Asignamos el canal de la conversion a la primera posicion en la secuencia
 	ADC1->SQR3 |= (adcConfig->channel << 0);
 }
