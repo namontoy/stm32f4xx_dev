@@ -204,6 +204,12 @@ __attribute__((weak)) void Timer2_Callback(void){
 }
 
 
+/**/
+__attribute__((weak)) void Timer3_Callback(void){
+	__NOP();
+}
+
+
 /* Esta es la función a la que apunta el sistema en el vector de interrupciones.
  * Se debe utilizar usando exactamente el mismo nombre definido en el vector de interrupciones,
  * Al hacerlo correctamente, el sistema apunta a esta función y cuando la interrupción se lanza
@@ -214,5 +220,15 @@ void TIM2_IRQHandler(void){
 
 	/* LLamamos a la función que se debe encargar de hacer algo con esta interrupción*/
 	Timer2_Callback();
+
+}
+
+
+void TIM3_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM3->SR &= ~TIM_SR_UIF;
+
+	/* LLamamos a la función que se debe encargar de hacer algo con esta interrupción*/
+	Timer3_Callback();
 
 }
