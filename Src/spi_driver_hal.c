@@ -110,22 +110,22 @@ static void spi_set_mode(SPI_Handler_t pSpiHandler){
 	// Cargamos el valor que deseamos configurar, por defecto es el modo 00
 	switch(pSpiHandler.SPI_Config.mode){
 
-	case 0:
+	case SPI_MODE_00:
 		pSpiHandler.pSPIx->CR1 &= ~(SPI_CR1_CPHA);
 		pSpiHandler.pSPIx->CR1 &= ~(SPI_CR1_CPOL);
 		break;
 
-	case 1:
+	case SPI_MODE_01:
 		pSpiHandler.pSPIx->CR1 |=  (SPI_CR1_CPHA);
 		pSpiHandler.pSPIx->CR1 &= ~(SPI_CR1_CPOL);
 		break;
 
-	case 2:
+	case SPI_MODE_10:
 		pSpiHandler.pSPIx->CR1 &= ~(SPI_CR1_CPHA);
 		pSpiHandler.pSPIx->CR1 |=  (SPI_CR1_CPOL);
 		break;
 
-	case 3:
+	case SPI_MODE_11:
 		pSpiHandler.pSPIx->CR1 |= (SPI_CR1_CPHA);
 		pSpiHandler.pSPIx->CR1 |= (SPI_CR1_CPOL);
 		break;
