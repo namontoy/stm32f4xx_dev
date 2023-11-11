@@ -13,10 +13,10 @@
 #include "gpio_driver_hal.h"
 
 enum {
-	SPI_MODE_0 = 0,
-	SPI_MODE_1,
-	SPI_MODE_2,
-	SPI_MODE_3
+	SPI_MODE_00 = 0,
+	SPI_MODE_01,
+	SPI_MODE_10,
+	SPI_MODE_11
 };
 
 enum {
