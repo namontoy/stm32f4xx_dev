@@ -79,6 +79,12 @@ void timer_enable_clock_peripheral(Timer_Handler_t *pTimerHandler){
 	else if(pTimerHandler->pTIMx == TIM3){
 		RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 	}
+	else if(pTimerHandler->pTIMx == TIM4){
+		RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+	}
+	else if(pTimerHandler->pTIMx == TIM5){
+		RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
+	}
 	else{
 		__NOP();
 	}
@@ -153,6 +159,12 @@ void timer_config_interrupt(Timer_Handler_t *pTimerHandler){
 		else if(pTimerHandler->pTIMx == TIM3){
 			NVIC_EnableIRQ(TIM3_IRQn);
 		}
+		else if(pTimerHandler->pTIMx == TIM4){
+			NVIC_EnableIRQ(TIM4_IRQn);
+		}
+		else if(pTimerHandler->pTIMx == TIM5){
+			NVIC_EnableIRQ(TIM5_IRQn);
+		}
 		else{
 			__NOP();
 		}
@@ -167,6 +179,12 @@ void timer_config_interrupt(Timer_Handler_t *pTimerHandler){
 		}
 		else if (pTimerHandler->pTIMx == TIM3) {
 			NVIC_DisableIRQ(TIM3_IRQn);
+		}
+		else if (pTimerHandler->pTIMx == TIM4) {
+			NVIC_DisableIRQ(TIM4_IRQn);
+		}
+		else if (pTimerHandler->pTIMx == TIM5) {
+			NVIC_DisableIRQ(TIM5_IRQn);
 		}
 		else {
 			__NOP();
@@ -209,6 +227,16 @@ __attribute__((weak)) void Timer3_Callback(void){
 	__NOP();
 }
 
+/**/
+__attribute__((weak)) void Timer4_Callback(void){
+	__NOP();
+}
+
+/**/
+__attribute__((weak)) void Timer5_Callback(void){
+	__NOP();
+}
+
 
 /* Esta es la función a la que apunta el sistema en el vector de interrupciones.
  * Se debe utilizar usando exactamente el mismo nombre definido en el vector de interrupciones,
@@ -230,5 +258,25 @@ void TIM3_IRQHandler(void){
 
 	/* LLamamos a la función que se debe encargar de hacer algo con esta interrupción*/
 	Timer3_Callback();
+
+}
+
+
+void TIM4_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM4->SR &= ~TIM_SR_UIF;
+
+	/* LLamamos a la función que se debe encargar de hacer algo con esta interrupción*/
+	Timer4_Callback();
+
+}
+
+
+void TIM5_IRQHandler(void){
+	/* Limpiamos la bandera que indica que la interrupción se ha generado */
+	TIM5->SR &= ~TIM_SR_UIF;
+
+	/* LLamamos a la función que se debe encargar de hacer algo con esta interrupción*/
+	Timer5_Callback();
 
 }

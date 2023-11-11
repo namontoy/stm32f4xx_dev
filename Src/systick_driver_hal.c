@@ -10,6 +10,8 @@
 #include "systick_driver_hal.h"
 
 static uint32_t countTicks = 0;
+static uint32_t ticks_start = 0;
+static uint32_t ticks_period = 0;
 
 /* cabeceras de las funciones privadas */
 static void systick_config_interrupt(Systick_Handler_t *pSystickHandler);
@@ -121,6 +123,26 @@ void SysTick_Handler(void){
 		countTicks++;
 
 		systick_Callback();
+	}
+}
+
+/*
+ * Funcion para generar un delay en ms controlado por el timer del sistema.
+ */
+void systick_Delay_ms(uint32_t wait_time_ms){
+	// Captura el primer valor de tiempo para comparar
+	ticks_start = systick_GetTicks();
+
+	// captura el segundo valor de tiempo para comparar.
+	ticks_period = systick_GetTicks();
+
+	// Compara: si el valor "counting" es menor que el "start + wait"
+	// actualiza el valor "counting".
+	// Repite esta operación hasta que counting sea mayor (se cumple el tiempo de espera)
+	while(ticks_period < (ticks_start + (uint32_t)wait_time_ms)){
+
+		// actualizar el valor
+		ticks_period = systick_GetTicks();
 	}
 }
 
