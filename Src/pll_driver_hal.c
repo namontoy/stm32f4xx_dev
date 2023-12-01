@@ -4,7 +4,9 @@
  *  Created on: Nov 15, 2023
  *      Author: namontoy
  */
+#include "stm32f4xx.h"
 #include "pll_driver_hal.h"
+
 
 /*
  * Configuración del reloj para que funcione a 100 MHz
