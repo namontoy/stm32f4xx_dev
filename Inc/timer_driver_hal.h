@@ -58,6 +58,7 @@ typedef struct
 
 void timer_Config(Timer_Handler_t *pTimerHandler);
 void timer_SetState(Timer_Handler_t *pTimerHandler, uint8_t newState);
+uint32_t timer_getCounter(Timer_Handler_t *pTimerHandler);
 
 /* Esta función debe ser sobre-escrita en el main para que el sistema funcione*/
 void Timer2_Callback(void);

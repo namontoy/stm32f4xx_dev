@@ -192,6 +192,11 @@ void timer_config_interrupt(Timer_Handler_t *pTimerHandler){
 	}
 }
 
+/**/
+uint32_t timer_getCounter(Timer_Handler_t *pTimerHandler){
+	return (uint32_t)pTimerHandler->pTIMx->CNT;
+}
+
 /**
  *
  */
