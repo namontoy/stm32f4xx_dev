@@ -112,6 +112,57 @@ void pwm_Stop_Signal(PWM_Handler_t *ptrPwmHandler) {
 	ptrPwmHandler->ptrTIMx->CR1 &= ~TIM_CR1_CEN;
 }
 
+void pwm_Change_OutputPolarity(PWM_Handler_t *ptrPwmHandler) {
+	switch (ptrPwmHandler->config.channel) {
+	case PWM_CHANNEL_1: {
+		// Polaridad para la salida del canal 1
+		if(ptrPwmHandler->config.polarity == PWM_ACTIVE_HIGH){
+			ptrPwmHandler->ptrTIMx->CCER |= TIM_CCER_CC1P;
+		}else{
+			ptrPwmHandler->ptrTIMx->CCER &= ~TIM_CCER_CC1P;
+		}
+
+		break;
+	}
+
+	case PWM_CHANNEL_2: {
+		// Polaridad para la salida del canal 2
+		if(ptrPwmHandler->config.polarity == PWM_ACTIVE_HIGH){
+			ptrPwmHandler->ptrTIMx->CCER |= TIM_CCER_CC2P;
+		}else{
+			ptrPwmHandler->ptrTIMx->CCER &= ~TIM_CCER_CC2P;
+		}
+		break;
+	}
+
+	case PWM_CHANNEL_3: {
+		// Polaridad para la salida del canal 3
+		if(ptrPwmHandler->config.polarity == PWM_ACTIVE_HIGH){
+			ptrPwmHandler->ptrTIMx->CCER |= TIM_CCER_CC3P;
+		}else{
+			ptrPwmHandler->ptrTIMx->CCER &= ~TIM_CCER_CC3P;
+		}
+
+		break;
+	}
+
+	case PWM_CHANNEL_4: {
+		// Polaridad para la salida del canal 2
+		if(ptrPwmHandler->config.polarity == PWM_ACTIVE_HIGH){
+			ptrPwmHandler->ptrTIMx->CCER |= TIM_CCER_CC4P;
+		}else{
+			ptrPwmHandler->ptrTIMx->CCER &= ~TIM_CCER_CC4P;
+		}
+
+		break;
+	}
+
+	default: {
+		break;
+	}
+	}
+}
+
 /**/
 void pwm_Enable_Output(PWM_Handler_t *ptrPwmHandler) {
 	switch (ptrPwmHandler->config.channel) {
