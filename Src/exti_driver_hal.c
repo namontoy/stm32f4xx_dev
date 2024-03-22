@@ -36,6 +36,9 @@ void exti_Config(EXTI_Config_t *extiConfig){
 	/* 5.0 Desactivo primero las interrupciones globales */
 	__disable_irq();
 
+	/* 5.9 Configurando la interrupcion del EXTI */
+	exti_Config_Int_Priority(extiConfig, extiConfig->priority);
+
 	/* 6. 0 Manejo de Interrupciones */
 	exti_config_interrupt(extiConfig);
 
@@ -700,6 +703,106 @@ static void exti_config_interrupt(EXTI_Config_t *extiConfig){
 		}
 
 		}
+}
+
+/*
+ * Funcion que configura las mascaras de interrupciones (registro de mascaras) y
+ * ademas matricula cada una de las posibles interrupciones en el NVIC
+ * */
+void exti_Config_Int_Priority(EXTI_Config_t *extiConfig, uint8_t newPriority){
+	/* 7.0 Cambiamos la prioridad */
+	/* 6.1 Matriculamos la interrupción en el NVIC para el canal correspondiente,
+	 * donde el canal 0 corresponde al EXTI_0, canal 1 al EXTI_1, etc.
+	 *
+	 * NOTA: Observar que algunos canales EXTI comparten un mismo vector de interrupción
+	 * */
+	switch (extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber) {
+	case 0: {
+		__NVIC_SetPriority(EXTI0_IRQn, newPriority);
+		break;
+	}
+
+	case 1: {
+		__NVIC_SetPriority(EXTI1_IRQn, newPriority);
+		break;
+	}
+
+	case 2: {
+		__NVIC_SetPriority(EXTI2_IRQn, newPriority);
+		break;
+	}
+
+	case 3: {
+		__NVIC_SetPriority(EXTI3_IRQn, newPriority);
+		break;
+	}
+
+	case 4: {
+		__NVIC_SetPriority(EXTI4_IRQn, newPriority);
+		break;
+	}
+
+	case 5: {
+		__NVIC_SetPriority(EXTI9_5_IRQn, newPriority);
+		break;
+	}
+
+	case 6: {
+		__NVIC_SetPriority(EXTI9_5_IRQn, newPriority);
+		break;
+	}
+
+	case 7: {
+		__NVIC_SetPriority(EXTI9_5_IRQn, newPriority);
+		break;
+	}
+
+	case 8: {
+		__NVIC_SetPriority(EXTI9_5_IRQn, newPriority);
+		break;
+	}
+
+	case 9: {
+		__NVIC_SetPriority(EXTI9_5_IRQn, newPriority);
+		break;
+	}
+
+	case 10: {
+		__NVIC_SetPriority(EXTI15_10_IRQn, newPriority);
+		break;
+	}
+
+	case 11: {
+		__NVIC_SetPriority(EXTI4_IRQn, newPriority);
+		__NVIC_EnableIRQ(EXTI15_10_IRQn);
+		break;
+	}
+
+	case 12: {
+		__NVIC_SetPriority(EXTI15_10_IRQn, newPriority);
+		break;
+	}
+
+	case 13: {
+		__NVIC_SetPriority(EXTI15_10_IRQn, newPriority);
+		break;
+	}
+
+	case 14: {
+		__NVIC_SetPriority(EXTI15_10_IRQn, newPriority);
+		break;
+	}
+
+	case 15: {
+		__NVIC_SetPriority(EXTI15_10_IRQn, newPriority);
+		break;
+	}
+
+	default: {
+		break;
+	}
+
+	}
 }
 
 /**/
