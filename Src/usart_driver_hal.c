@@ -190,67 +190,159 @@ static void usart_config_baudrate(USART_Handler_t *ptrUsartHandler){
 
 	auxMainClock = pll_Get_MainClock();
 
+	if(ptrUsartHandler->ptrUSARTx == USART2){
+		// Caso para configurar cuando se trabaja con el Cristal Interno
+			switch(ptrUsartHandler->USART_Config.baudrate){
+				case USART_BAUDRATE_9600:
+				{
+					if(auxMainClock == HSI_CLOCK_CONFIGURED){
+						// El valor a cargar es 52.0625 -> Mantiza = 52,fraction = 0.0625
+						// Mantiza = 52 = 0x34, fraction = 16 * 0.1875 = 1
+						// Valor a cargar 0x0341
+						// Configurando el Baudrate generator para una velocidad de 19200bps
+						//ptrUsartHandler->ptrUSARTx->BRR = 0x0341;
+					}else{
+						// El valor a cargar es 104.1875 -> Mantiza = 104,fraction = 0.1875
+						// Mantiza = 104 = 0x68, fraction = 16 * 0.1875 = 3
+						// Valor a cargar 0x0683
+						// Configurando el Baudrate generator para una velocidad de 9600bps
+						ptrUsartHandler->ptrUSARTx->BRR = 0x0683;
+					}
 
-	// Caso para configurar cuando se trabaja con el Cristal Interno
-	switch(ptrUsartHandler->USART_Config.baudrate){
-		case USART_BAUDRATE_9600:
-		{
-			// El valor a cargar es 104.1875 -> Mantiza = 104,fraction = 0.1875
-			// Mantiza = 104 = 0x68, fraction = 16 * 0.1875 = 3
-			// Valor a cargar 0x0683
-			// Configurando el Baudrate generator para una velocidad de 9600bps
-			ptrUsartHandler->ptrUSARTx->BRR = 0x0683;
-			break;
-		}
-		case USART_BAUDRATE_19200:
-		{
-			if(auxMainClock == HSI_CLOCK_CONFIGURED){
-				// El valor a cargar es 52.0625 -> Mantiza = 52,fraction = 0.0625
-				// Mantiza = 52 = 0x34, fraction = 16 * 0.1875 = 1
-				// Valor a cargar 0x0341
-				// Configurando el Baudrate generator para una velocidad de 19200bps
-				ptrUsartHandler->ptrUSARTx->BRR = 0x0341;
-			}else{
-				ptrUsartHandler->ptrUSARTx->BRR = 0x0A2C;
+					break;
+				}
+
+				case USART_BAUDRATE_19200:
+				{
+					if(auxMainClock == HSI_CLOCK_CONFIGURED){
+						// El valor a cargar es 52.0625 -> Mantiza = 52,fraction = 0.0625
+						// Mantiza = 52 = 0x34, fraction = 16 * 0.1875 = 1
+						// Valor a cargar 0x0341
+						// Configurando el Baudrate generator para una velocidad de 19200bps
+						ptrUsartHandler->ptrUSARTx->BRR = 0x0341;
+					}else{
+						ptrUsartHandler->ptrUSARTx->BRR = 0x0A2C;
+					}
+
+					break;
+				}
+				case USART_BAUDRATE_115200:
+				{
+					if(auxMainClock == HSI_CLOCK_CONFIGURED){
+						// El valor a cargar es 8.6875 -> Mantiza = 8,fraction = 0.6875
+						// Mantiza = 8 = 0x08, fraction = 16 * 0.6875 = 11 = 0xB
+						// Valor a cargar 0x008B
+						// Configurando el Baudrate generator para una velocidad de 115200bps
+						ptrUsartHandler->ptrUSARTx->BRR = 0x008B;
+
+					}else{
+						// PLL_CLOCK_CONFIGURED
+						ptrUsartHandler->ptrUSARTx->BRR = 0x01B2;
+
+					}
+
+					break;
+				}
+				case USART_BAUDRATE_230400:
+				{
+					// Configurando el Baudrate generator para una velocidad de 230400bps
+					ptrUsartHandler->ptrUSARTx->BRR = 0x0045;
+					break;
+				}
+				case USART_BAUDRATE_921600:
+				{
+					// Configurando el Baudrate generator para una velocidad de 921600bps
+					ptrUsartHandler->ptrUSARTx->BRR = 0x0011;
+					break;
+				}
+
+				default:
+				{
+					// Configurando el Baudrate generator para una velocidad de 115200bps
+					ptrUsartHandler->ptrUSARTx->BRR = 0x008B;
+					break;
+				}
+
+			}
+	}
+	// Este else es para USART1 y USART6, que van al doble de la velocidad
+	else{
+		switch(ptrUsartHandler->USART_Config.baudrate){
+			case USART_BAUDRATE_9600:
+			{
+				if(auxMainClock == HSI_CLOCK_CONFIGURED){
+					// El valor a cargar es 52.0625 -> Mantiza = 52,fraction = 0.0625
+					// Mantiza = 52 = 0x34, fraction = 16 * 0.1875 = 1
+					// Valor a cargar 0x0341
+					// Configurando el Baudrate generator para una velocidad de 19200bps
+					//ptrUsartHandler->ptrUSARTx->BRR = 0x0341;
+				}else{
+					// El valor a cargar es 104.1875 -> Mantiza = 104,fraction = 0.1875
+					// Mantiza = 104 = 0x68, fraction = 16 * 0.1875 = 3
+					// Valor a cargar 0x0683
+					// Configurando el Baudrate generator para una velocidad de 9600bps
+					ptrUsartHandler->ptrUSARTx->BRR = 0x0683;
+				}
+
+				break;
 			}
 
-			break;
-		}
-		case USART_BAUDRATE_115200:
-		{
-			if(auxMainClock == HSI_CLOCK_CONFIGURED){
-				// El valor a cargar es 8.6875 -> Mantiza = 8,fraction = 0.6875
-				// Mantiza = 8 = 0x08, fraction = 16 * 0.6875 = 11 = 0xB
-				// Valor a cargar 0x008B
+			case USART_BAUDRATE_19200:
+			{
+				if(auxMainClock == HSI_CLOCK_CONFIGURED){
+					// El valor a cargar es 52.0625 -> Mantiza = 52,fraction = 0.0625
+					// Mantiza = 52 = 0x34, fraction = 16 * 0.1875 = 1
+					// Valor a cargar 0x0341
+					// Configurando el Baudrate generator para una velocidad de 19200bps
+					ptrUsartHandler->ptrUSARTx->BRR = 0x0341*2;
+				}else{
+					ptrUsartHandler->ptrUSARTx->BRR = 0x0A2C*2;
+				}
+
+				break;
+			}
+			case USART_BAUDRATE_115200:
+			{
+				if(auxMainClock == HSI_CLOCK_CONFIGURED){
+					// El valor a cargar es 8.6875 -> Mantiza = 8,fraction = 0.6875
+					// Mantiza = 8 = 0x08, fraction = 16 * 0.6875 = 11 = 0xB
+					// Valor a cargar 0x008B
+					// Configurando el Baudrate generator para una velocidad de 115200bps
+					ptrUsartHandler->ptrUSARTx->BRR = 0x008B*2;
+
+				}else{
+					// PLL_CLOCK_CONFIGURED
+					ptrUsartHandler->ptrUSARTx->BRR = 0x01B2*2;
+
+				}
+
+				break;
+			}
+			case USART_BAUDRATE_230400:
+			{
+				// Configurando el Baudrate generator para una velocidad de 230400bps
+				ptrUsartHandler->ptrUSARTx->BRR = 0x0045*2;
+				break;
+			}
+			case USART_BAUDRATE_921600:
+			{
+				// Configurando el Baudrate generator para una velocidad de 921600bps
+				ptrUsartHandler->ptrUSARTx->BRR = 0x0011*2;
+				break;
+			}
+
+			default:
+			{
 				// Configurando el Baudrate generator para una velocidad de 115200bps
-				ptrUsartHandler->ptrUSARTx->BRR = 0x008B;
-
-			}else{
-				// PLL_CLOCK_CONFIGURED
-				ptrUsartHandler->ptrUSARTx->BRR = 0x01B2;
-
+				ptrUsartHandler->ptrUSARTx->BRR = 0x008B*2;
+				break;
 			}
 
-			break;
 		}
-		case USART_BAUDRATE_230400:
-		{
-			// Configurando el Baudrate generator para una velocidad de 230400bps
-			ptrUsartHandler->ptrUSARTx->BRR = 0x0045;
-			break;
-		}
-		case USART_BAUDRATE_921600:
-		{
-			// Configurando el Baudrate generator para una velocidad de 921600bps
-			ptrUsartHandler->ptrUSARTx->BRR = 0x0011;
-			break;
-		}
+	}
 
-		default:
-			// Configurando el Baudrate generator para una velocidad de 115200bps
-			ptrUsartHandler->ptrUSARTx->BRR = 0x008B;
-			break;
-		}
+
+
 }
 
 /**
