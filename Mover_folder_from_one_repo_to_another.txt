@@ -44,3 +44,34 @@ git branch -d repo1
 git push origin master
 
 # That's all. After that you can nuke the temporary source repository.
+#
+# Un ejemplo de uso en mi equipo:
+# Suponiendo que el repo original es clonado dentro de la carpeta Downloads
+cd /home/namontoy/Downloads/T5-2023-02/
+# Este comando eimina todo dentro del repo y solo deja lo que hay dentro de la carpeta "CMSIS-DSP-Full"
+git filter-branch --subdirectory-filter CMSIS-DSP-Full -- -- all
+# Creando la carpeta del proyecto (porque el proceso la borra)
+mkdir CMSIS-DSP-Full
+# Moviendo los archivos del proyecto de nuevo dentro de la carpeta
+git mv Inc CMSIS-DSP-Full/
+git mv Src CMSIS-DSP-Full/
+git mv .cproject CMSIS-DSP-Full/
+git mv .project CMSIS-DSP-Full/
+# Este commit es para actualizar el repo local, NO se debe hacer push
+git commit -m "Moviendo CMSIS_FULL a un nuevo repo"
+# Cambiando al otro repo
+cd /home/namontoy/github/stm32f4xx_dev/
+# Agregamos ahora un nuevo repo-remoto a la carpeta
+git remote add repo1 /home/namontoy/Downloads/T5-2023-02/
+# Y actualizamos localmente
+git fetch repo1
+# Ahora hacemos que se repo se pegue al main
+git branch repo1 remotes/repo1/main
+# Se este paso no funciona porque es un repo completamente nuevo, que aun no tiene main, entonces...
+# esto solo se debe hacer si el repo es completamente nuevo "git branch repo1 remotes/repo1/main"
+# Ahora se hace merge para que "eliminar" el branch
+git merge repo1 --allow-unrelated-histories
+# Y luego removemos el repo creado de forma temporal
+git remote rm repo1
+git branch -d repo1
+
