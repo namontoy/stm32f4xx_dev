@@ -403,22 +403,38 @@ static void usart_config_interrupt(USART_Handler_t *ptrUsartHandler){
 			/* Lo debemos hacer para cada uno de las posibles opciones que tengamos (USART1, USART2, USART6) */
 			if(ptrUsartHandler->ptrUSARTx == USART1){
 				__NVIC_EnableIRQ(USART1_IRQn);
-				__NVIC_SetPriority(USART1_IRQn, 2);
+				__NVIC_SetPriority(USART1_IRQn, e_USART_PRIORITY_6);
 			}
 
 			else if(ptrUsartHandler->ptrUSARTx == USART2){
 				__NVIC_EnableIRQ(USART2_IRQn);
-				__NVIC_SetPriority(USART2_IRQn, 2);
+				__NVIC_SetPriority(USART2_IRQn, e_USART_PRIORITY_6);
 				}
 
 			else if(ptrUsartHandler->ptrUSARTx == USART6){
 				__NVIC_EnableIRQ(USART6_IRQn);
-				__NVIC_SetPriority(USART6_IRQn, 2);
+				__NVIC_SetPriority(USART6_IRQn, e_USART_PRIORITY_6);
 			}
 		}
 		else{
 
 		}
+}
+
+void usart_Config_Int_Priority(USART_Handler_t *ptrUsartHandler, uint8_t newPriority){
+			/* Debemos matricular la interrupción en el NVIC */
+			/* Lo debemos hacer para cada uno de las posibles opciones que tengamos (USART1, USART2, USART6) */
+			if(ptrUsartHandler->ptrUSARTx == USART1){
+				__NVIC_SetPriority(USART1_IRQn, newPriority);
+			}
+
+			else if(ptrUsartHandler->ptrUSARTx == USART2){
+				__NVIC_SetPriority(USART2_IRQn, newPriority);
+				}
+
+			else if(ptrUsartHandler->ptrUSARTx == USART6){
+				__NVIC_SetPriority(USART6_IRQn, newPriority);
+			}
 }
 
 

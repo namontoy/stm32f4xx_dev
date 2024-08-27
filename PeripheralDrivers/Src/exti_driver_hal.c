@@ -594,13 +594,48 @@ static void exti_assign_channel(EXTI_Config_t *extiConfig){
  * */
 static void exti_select_edge(EXTI_Config_t *extiConfig){
 
-	if(extiConfig->edgeType == EXTERNAL_INTERRUPT_FALLING_EDGE){
+	switch (extiConfig->edgeType) {
+
+	case EXTERNAL_INTERRUPT_FALLING_EDGE: {
 		/* Falling Trigger selection register*/
-		EXTI->FTSR |= (1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+		EXTI->FTSR |=
+				(1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+		break;
 	}
-	else{
-		EXTI->RTSR |= (1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+
+	case EXTERNAL_INTERRUPT_RISING_EDGE: {
+		/* Rising Trigger selection register*/
+		EXTI->RTSR |=
+				(1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+		break;
 	}
+
+	case EXTERNAL_INTERRUPT_BOTH_EDGES: {
+		/* Enabling both edges */
+		EXTI->FTSR |=
+				(1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+		EXTI->RTSR |=
+				(1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+		break;
+	}
+
+	default: {
+		/* Falling Trigger selection register*/
+		EXTI->FTSR |=
+				(1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+		break;
+	}
+
+	}// Fin del switch-case
+
+//	if(extiConfig->edgeType == EXTERNAL_INTERRUPT_FALLING_EDGE){
+//		/* Falling Trigger selection register*/
+//		EXTI->FTSR |= (1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+//	}
+//	else{
+//		EXTI->RTSR |= (1U << extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber);
+//	}
+
 }
 
 /*
@@ -619,12 +654,14 @@ static void exti_config_interrupt(EXTI_Config_t *extiConfig){
 		 * */
 		switch (extiConfig->pGPIOHandler->pinConfig.GPIO_PinNumber) {
 		case 0: {
+			__NVIC_SetPriority(EXTI0_IRQn, e_EXTI_PRIORITY_6);
 			__NVIC_EnableIRQ(EXTI0_IRQn);
 			break;
 		}
 
 		case 1: {
 			__NVIC_EnableIRQ(EXTI1_IRQn);
+			//TODO...
 			break;
 		}
 

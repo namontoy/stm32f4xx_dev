@@ -54,6 +54,20 @@ enum{
 	USART_STOPBIT_1_5
 };
 
+enum
+{
+	e_USART_PRIORITY_6	= 6,
+	e_USART_PRIORITY_7,
+	e_USART_PRIORITY_8,
+	e_USART_PRIORITY_9,
+	e_USART_PRIORITY_10,
+	e_USART_PRIORITY_11,
+	e_USART_PRIORITY_12,
+	e_USART_PRIORITY_13,
+	e_USART_PRIORITY_14,
+	e_USART_PRIORITY_15
+};
+
 
 /* Estructura para la configuración de la comunicacion:
  * Velocidad (baudrate)
@@ -95,6 +109,7 @@ typedef struct
 
 /* Definicion de los prototipos para las funciones del USART */
 void usart_Config(USART_Handler_t *ptrUsartHandler);
+void usart_Config_Int_Priority(USART_Handler_t *ptrUsartHandler, uint8_t newPriority);
 int  usart_WriteChar(USART_Handler_t *ptrUsartHandler, int dataToSend );
 void usart_writeMsg(USART_Handler_t *ptrUsartHandler, char *msgToSend );
 uint8_t usart_getRxData(void);
