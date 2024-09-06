@@ -172,10 +172,18 @@ static void i2c_stop_signal(I2C_Handler_t *pHandlerI2C)
 	pHandlerI2C->pI2Cx->CR1 |= I2C_CR1_STOP;
 }
 
-/* 1. Verificamos que la línea no esta ocupada - bit "busy" en I2C_CR2 */
-/* 2. Generamos la señal "start" */
-/* 2a. Esperamos a que la bandera del evento "start" se levante */
-/*Mientras esperamos, el valor de SB es 0, entonces la negación (!) es 1*/
+/*
+ * Funcion que genera la señal START de un ciclo de comunicación del I2C.
+ * El código está relacionado con la figura 164 (Pag 481) del manual de referencia
+ * del MCU.
+ *
+ * 1. Configuramos bit I2C_CR1_POS
+ * 2. Generamos la señal "start"
+ * 2a. Esperamos a que la bandera del evento "start" se levante.
+ * (mientras esperamos, el valor de SB es 0, entonces la negación (!) es 1)
+ * 3. Leemos el registro SR1
+ * Estos pasos hacen parte del evento EV5 de la figura 164.
+ * */
 static void i2c_start_signal(I2C_Handler_t *pHandlerI2C)
 {
 	/* 0. Definimos una variable auxiliar */
@@ -190,23 +198,30 @@ static void i2c_start_signal(I2C_Handler_t *pHandlerI2C)
 	/* 0. Reset, para tener el periferico en un estado conocido. */
 	//i2c_softReset(ptrHandlerI2C);
 
-	/* 1. Verificamos que la línea no esta ocupada - bit "busy" en I2C_CR2 */
-//	while(ptrHandlerI2C->ptrI2Cx->SR2 & I2C_SR2_BUSY){
-//		__NOP();
-//	}
+	/* 1. Configuramos el control para generar el bit ACK.
+	 * Este bit posición lo que hace es controlar si nuestro bit ACK genera dicha
+	 * señal para el byte que se está leyendo actualmente (I2C_CR1_POS = 0) o para el byte
+	 * que llegará posteriormente (I2C_CR1_POS = 1).
+	 * Lo mas lógico es trabajar con el byte que se está recibiendo actualmente.
+	 * */
+	pHandlerI2C->pI2Cx->CR1 &= ~I2C_CR1_POS;
 
 	/* 2. Generamos la señal "start" */
 	pHandlerI2C->pI2Cx->CR1 |= I2C_CR1_START;
 
-	/* 2a. Esperamos a que la bandera del evento "start" se levante */
-	/*Mientras esperamos, el valor de SB es 0, entonces la negación (!) es 1*/
+	/* 2a. Esperamos a que la bandera del evento "start" se levante.
+	 * Este bit se hace 1 si y solo si una señal de star se genera satisfactoriamente.
+	 * Mientras esperamos, el valor de SB es 0, entonces la negación <(!) es 1
+	 * */
 	while( !(pHandlerI2C->pI2Cx->SR1 & I2C_SR1_SB)){
 		__NOP();
 	}
 
 	/* El sistema espera que el registro SR1 sea leido, para continuar con el siguiente paso, que es
 	 * enviar la señal del esclavo (siempre)
-	 * Pag 479 del manual */
+	 * Pag 479 del manual
+	 * Esta condición de leer el registro SR1 es necesaria y siempre se debe hacer.
+	 * */
 	auxByte = pHandlerI2C->pI2Cx->SR1;
 
 }
@@ -249,6 +264,8 @@ static void i2c_send_ack(I2C_Handler_t *pHandlerI2C)
  * que ser escrita correctamente desde el inicio, si esto no se hace el sistema enviará una dirección
  * que simplemente el esclavo no va a entender.
  * esto es, se hace la operación: (slaveAddress << 1) | R/W
+ *
+ * Descrito entre los eventos EV6 y EV6 de la figura 164.
  * */
 static void i2c_send_slave_address_rw(I2C_Handler_t *pHandlerI2C, uint8_t rw)
 {
@@ -274,6 +291,14 @@ static void i2c_send_slave_address_rw(I2C_Handler_t *pHandlerI2C, uint8_t rw)
 	 * o en modo de recepcion, lo cual esta definido por el tipo de seleccion de R/W que se envio
 	 * pag 480 del manual.
 	 * */
+
+	/* Esperamos hasta que el byte sea montado en el DSR, quedando el DR libre de nuevo
+	 * Este paso no ews claramente especificado en el manual, pero es la forma de verificar
+	 * que se puede continuar, ya qye el DR quedará libre.
+	 * */
+	while( !(pHandlerI2C->pI2Cx->SR1 & I2C_SR1_TXE)){
+		__NOP();
+	}
 	__NOP(); // para verificar en modo debug.
 }
 
@@ -358,8 +383,8 @@ uint8_t i2c_ReadSingleRegister(I2C_Handler_t *pHandlerI2C, uint8_t regToRead){
 	i2c_send_no_ack(pHandlerI2C);
 
 	/* 7. Generamos la condición Stop, para que el slave se detenga despues de 1 byte */
-	//i2c_stopTransaction(ptrHandlerI2C);
-	i2c_send_close_comm(pHandlerI2C);
+	i2c_stop_signal(pHandlerI2C);
+	//i2c_send_close_comm(pHandlerI2C);
 
 
 	return auxRead;
