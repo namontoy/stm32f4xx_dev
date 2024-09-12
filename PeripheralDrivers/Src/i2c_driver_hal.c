@@ -296,9 +296,9 @@ static void i2c_send_slave_address_rw(I2C_Handler_t *pHandlerI2C, uint8_t rw)
 	 * Este paso no ews claramente especificado en el manual, pero es la forma de verificar
 	 * que se puede continuar, ya qye el DR quedará libre.
 	 * */
-	while( !(pHandlerI2C->pI2Cx->SR1 & I2C_SR1_TXE)){
-		__NOP();
-	}
+//	while( !(pHandlerI2C->pI2Cx->SR1 & I2C_SR1_TXE)){
+//		__NOP();
+//	}
 	__NOP(); // para verificar en modo debug.
 }
 
