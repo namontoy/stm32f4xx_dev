@@ -1,11 +1,4 @@
 /*
- * i2c_driver_hal.c
- *
- *  Created on: Dec 1, 2023
- *      Author: namontoy
- */
-
-/*
  * I2CDriver.c
  *
  *  Created on: XXXX, 2022
@@ -35,6 +28,7 @@ static void i2c_send_ack(I2C_Handler_t *pHandlerI2C);
 static void i2c_send_slave_address_rw(I2C_Handler_t *pHandlerI2C, uint8_t rw);
 static void i2c_send_memory_address(I2C_Handler_t *pHandlerI2C, uint8_t memAddr);
 static void i2c_send_close_comm(I2C_Handler_t *pHandlerI2C);
+static void i2c_send_byte(I2C_Handler_t *pHandlerI2C, uint8_t dataToWrite);
 static uint8_t i2c_read_byte(I2C_Handler_t *pHandlerI2C);
 
 //static void i2c_config_interrupt(I2C_Handler_t *pHandlerI2C);
@@ -303,7 +297,8 @@ static void i2c_send_slave_address_rw(I2C_Handler_t *pHandlerI2C, uint8_t rw)
 }
 
 /**/
-void i2c_send_byte(I2C_Handler_t *pHandlerI2C, uint8_t dataToWrite){
+static void i2c_send_byte(I2C_Handler_t *pHandlerI2C, uint8_t dataToWrite)
+{
 	/* 5. Cargamos el valor que deseamos escribir */
 	pHandlerI2C->pI2Cx->DR = dataToWrite;
 
