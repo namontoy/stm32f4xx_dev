@@ -10,52 +10,58 @@
 
 #include <stdint.h>
 #include "stm32f4xx.h"
+#include "stm32_hal_common.h"
 
 /* Descripción de cada uno de los registros del periférico (no es necesario para este) */
 
 /**
   * GPIO bit SET and bit RESET enumeration
   */
-enum
+typedef enum
 {
 	GPIO_PIN_RESET	= 0,
 	GPIO_PIN_SET
-};
+
+}eGPIO_OutputState_t;
 
 /* Valores estándar para las configuraciones */
 /* 8.4.1 GPIOx_MODER (dos bit por cada PIN) */
-enum
+typedef enum
 {
 	GPIO_MODE_IN	= 0,
 	GPIO_MODE_OUT,
 	GPIO_MODE_ALTFN,
 	GPIO_MODE_ANALOG
-};
+
+}eGPIO_Mode_t;
 
 /* 8.4.2 GPIOx_OTYPER (un bit por PIN) */
-enum
+typedef enum
 {
 	GPIO_OTYPE_PUSHPULL		= 0,
 	GPIO_OTYPE_OPENDRAIN
-};
+
+}eGPIO_OutputType;
 
 /* 8.4.3 GPIOx_OSPEEDR (dos bit por cada PIN) */
-enum
+typedef enum
 {
 	GPIO_OSPEED_LOW		= 0,
 	GPIO_OSPEED_MEDIUM,
 	GPIO_OSPEED_FAST,
 	GPIO_OSPEED_HIGH
-};
+
+}eGPIO_OutputSpeed;
 
 /* 8.4.4 GPIOx_PUPDR (dos bit por cada PIN) */
-enum
+typedef enum
 {
 	GPIO_PUPDR_NOTHING	= 0,
 	GPIO_PUPDR_PULLUP,
 	GPIO_PUPDR_PULLDOWN,
-	GPIO_PUPDR_RESERVED,
-};
+	GPIO_PUPDR_RESERVED
+
+}eGPIO_InputResistor;
 
 
 /* 8.4.5 GPIOx_IDR (un bit por PIN) - este es el registro para leer el estado de un PIN */
@@ -65,7 +71,7 @@ enum
  * una escritura "atómica", por lo cual es preferible utilizar el registro BSRR */
 
 /* Definición de los nombres de los pines */
-enum
+typedef enum
 {
 	PIN_0	= 0,
 	PIN_1,
@@ -84,11 +90,11 @@ enum
 	PIN_14,
 	PIN_15
 
-};
+}eGPIO_pin_t;
 
 
 /* Definición de las funciones alternativas */
-enum
+typedef enum
 {
  AF0	= 0b0000,
  AF1	= 0b0001,
@@ -106,19 +112,21 @@ enum
  AF13	= 0b1101,
  AF14	= 0b1110,
  AF15	= 0b1111
-};
+
+}eGPIO_altFunction;
 
 #define GPIO_PIN_MASK	0x0FU	/* Pin mask for assert test */
 
 /* Structure definition which will keeps the configuration information for PinX  */
 typedef struct
 {
-	uint8_t	GPIO_PinNumber;			// Working Pin
-	uint8_t	GPIO_PinMode;			// Config mode: input,  output, analog, alternate func
-	uint8_t	GPIO_PinOutputSpeed;	// Output speed for working pin
-	uint8_t	GPIO_PinPuPdControl;	// Turn ON-OFF the pull_up and pull_down resistor for working pin
-	uint8_t	GPIO_PinOutputType;		// Selects output type: push-pull or openDrain.
-	uint8_t	GPIO_PinAltFunMode;		// Type of alternate function assigned to working pin.
+	eGPIO_pin_t			GPIO_PinNumber;			// Working Pin
+	eGPIO_Mode_t		GPIO_PinMode;			// Config mode: input,  output, analog, alternate func
+	eGPIO_OutputSpeed	GPIO_PinOutputSpeed;	// Output speed for working pin
+	eGPIO_InputResistor	GPIO_PinPuPdControl;	// Turn ON-OFF the pull_up and pull_down resistor for working pin
+	eGPIO_OutputType	GPIO_PinOutputType;		// Selects output type: push-pull or openDrain.
+	eGPIO_altFunction	GPIO_PinAltFunMode;		// Type of alternate function assigned to working pin.
+	eHAL_StatusMsg_t	GPIO_isConfig;			// Tell us if the peripheral is configured
 
 } GPIO_PinConfig_t;
 
@@ -136,6 +144,8 @@ typedef struct
 } GPIO_Handler_t;
 
 /* For testing assert parameters - checking basic configurations. */
+#define IS_GPIO_PORT(PORT) ((PORT== GPIOA) || (PORT== GPIOB) || (PORT== GPIOC) || (PORT== GPIOD) || (PORT== GPIOH))
+
 #define IS_GPIO_PIN_ACTION(ACTION) (((ACTION) == GPIO_PIN_RESET) || ((ACTION) == GPIO_PIN_SET))
 
 #define IS_GPIO_PIN(PIN)           (((uint32_t)PIN) <= GPIO_PIN_MASK)
@@ -159,9 +169,9 @@ typedef struct
 
 
 /* Header definitions for the "public functions" of gpio_driver_hal */
-void gpio_Config (GPIO_Handler_t *pGPIOHandler);
-void gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState);
-void gpio_TooglePin(GPIO_Handler_t *pPinHandler);
+eHAL_StatusMsg_t gpio_Config (GPIO_Handler_t *pGPIOHandler);
+eHAL_StatusMsg_t gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState);
+eHAL_StatusMsg_t gpio_TooglePin(GPIO_Handler_t *pPinHandler);
 uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler);
 
 

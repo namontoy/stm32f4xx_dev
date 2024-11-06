@@ -8,6 +8,7 @@
 #include "gpio_driver_hal.h"
 #include "stm32f4xx.h"
 #include "stm32_assert.h"
+#include "stm32_hal_common.h"
 
 /* === Headers for private functions === */
 static void gpio_enable_clock_peripheral(GPIO_Handler_t *pGPIOHandler);
@@ -25,7 +26,13 @@ static void gpio_config_alternate_function(GPIO_Handler_t *pGPIOHandler);
  * elemento específico (relacionado con el periférico RCC), a esto llamaremos
  * simplemente "activar el periférico o activar la señal de reloj del periférico)
  */
-void gpio_Config (GPIO_Handler_t *pGPIOHandler){
+eHAL_StatusMsg_t gpio_Config (GPIO_Handler_t *pGPIOHandler){
+
+	// Comienza por defecto con el valor que indica que no ha sido configurado
+	pGPIOHandler->pinConfig.GPIO_isConfig = HAL_CONFIG_ERROR;
+
+	/* Verificamos que el periferico sea correcto. */
+	assert_param(IS_GPIO_PORT(pGPIOHandler->pGPIOx));
 
 	/* Verificamos que el pin seleccionado es correcto. */
 	assert_param(IS_GPIO_PIN(pGPIOHandler->pinConfig.GPIO_PinNumber));
@@ -49,6 +56,11 @@ void gpio_Config (GPIO_Handler_t *pGPIOHandler){
 
 	// 6)Configuración de las funciones alternativas... se verá luego, mas adelante en el curso
 	gpio_config_alternate_function(pGPIOHandler);
+
+	/* Se carga el valor que indica que el pin ha quedado configurado adecuadamente. */
+	pGPIOHandler->pinConfig.GPIO_isConfig = HAL_GPIO_IS_CONFIGURE;
+
+	return pGPIOHandler->pinConfig.GPIO_isConfig;
 
 } // Fin del GPIO_config
 
@@ -221,8 +233,11 @@ static void gpio_config_alternate_function(GPIO_Handler_t *pGPIOHandler){
  * Función utilizada para cambiar de estado el pin entregado en el handler, asignando
  * el valor entregado en la variable newState
  */
-void gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
+eHAL_StatusMsg_t gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
 
+	if(pPinHandler->pinConfig.GPIO_isConfig != HAL_GPIO_IS_CONFIGURE){
+		return HAL_CONFIG_ERROR;
+	}
 	/* Verificamos si la accion que deseamos realizar es permitida */
 	assert_param(IS_GPIO_PIN_ACTION(newState));
 
@@ -236,6 +251,8 @@ void gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
 		// Trabajando con la parte alta del registro
 		pPinHandler->pGPIOx->BSRR |= (SET << (pPinHandler->pinConfig.GPIO_PinNumber + 16));
 	}
+
+	return HAL_SUCCESS;
 }
 
 /**
@@ -244,6 +261,10 @@ void gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
 uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 	// Creamos una variable auxiliar la cual luego retornaremos
 	uint32_t pinValue = 0;
+
+	if(pPinHandler->pinConfig.GPIO_isConfig != HAL_GPIO_IS_CONFIGURE){
+		return HAL_CONFIG_ERROR;
+	}
 
 	// Cargamos el valor del registro IDR, desplazado a derecha tantas veces como la ubicación
 	// del pin especifico
@@ -254,9 +275,16 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 }
 
 /**/
-void gpio_TooglePin(GPIO_Handler_t *pPinHandler){
+eHAL_StatusMsg_t gpio_TooglePin(GPIO_Handler_t *pPinHandler){
+
+	if(pPinHandler->pinConfig.GPIO_isConfig != HAL_GPIO_IS_CONFIGURE){
+		return HAL_CONFIG_ERROR;
+	}
 
 	uint32_t auxState = gpio_ReadPin(pPinHandler);
 	auxState = !auxState;
 	gpio_WritePin(pPinHandler, auxState);
+
+	return HAL_SUCCESS;
+
 }
