@@ -284,7 +284,9 @@ void spi_Transmit(SPI_Handler_t pSpiHandler, uint8_t * ptrData, uint32_t dataSiz
 	/* Debemos limpiar la bandera de OverRun (que a veces se levanta).
 	 * Para esto debemos leer el DR y luego leer el SR del módulo SPI (pag 599) */
 	auxData = pSpiHandler.pSPIx->DR;
+	(void)auxData;
 	auxData = pSpiHandler.pSPIx->SR;
+	(void)auxData;
 }
 
 

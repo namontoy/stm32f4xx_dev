@@ -217,6 +217,7 @@ static void i2c_start_signal(I2C_Handler_t *pHandlerI2C)
 	 * Esta condición de leer el registro SR1 es necesaria y siempre se debe hacer.
 	 * */
 	auxByte = pHandlerI2C->pI2Cx->SR1;
+	(void)auxByte;
 
 }
 
@@ -280,7 +281,9 @@ static void i2c_send_slave_address_rw(I2C_Handler_t *pHandlerI2C, uint8_t rw)
 	/* 3.2 Debemos limpiar la bandera de la recepción de ACK de la "addr", para lo cual
 	 * debemos leer en secuencia primero el I2C_SR1 y luego I2C_SR2 */
 	auxByte = pHandlerI2C->pI2Cx->SR1;
+	(void)auxByte;
 	auxByte = pHandlerI2C->pI2Cx->SR2;
+	(void)auxByte;
 	/* El bit TRA del registro SR2 nos indica si el equiopo quedó en modo de transmision
 	 * o en modo de recepcion, lo cual esta definido por el tipo de seleccion de R/W que se envio
 	 * pag 480 del manual.

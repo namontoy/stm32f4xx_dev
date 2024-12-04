@@ -200,9 +200,10 @@ static void gpio_config_pullup_pulldown(GPIO_Handler_t *pGPIOHandler){
  * */
 static void gpio_config_alternate_function(GPIO_Handler_t *pGPIOHandler){
 
-	uint32_t auxPosition = 0;
-
 	if(pGPIOHandler->pinConfig.GPIO_PinMode == GPIO_MODE_ALTFN){
+
+		uint32_t auxPosition;
+
 
 		// Seleccionamos primero si se debe utilizar el registro bajo (AFRL) o el alto (AFRH)
 		if(pGPIOHandler->pinConfig.GPIO_PinNumber < 8){
