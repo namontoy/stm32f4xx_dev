@@ -141,6 +141,7 @@ typedef struct
 {
 	GPIO_TypeDef		*pGPIOx;	// Pointer to the port of selected PinX
 	GPIO_PinConfig_t	pinConfig;	// Holds the configuration for selected PinX
+	uint8_t				pinValue;	// For reading the value of the pin.
 } GPIO_Handler_t;
 
 /* For testing assert parameters - checking basic configurations. */
@@ -172,7 +173,7 @@ typedef struct
 eHAL_StatusMsg_t gpio_Config (GPIO_Handler_t *pGPIOHandler);
 eHAL_StatusMsg_t gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState);
 eHAL_StatusMsg_t gpio_TooglePin(GPIO_Handler_t *pPinHandler);
-uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler);
+eHAL_StatusMsg_t gpio_ReadPin(GPIO_Handler_t *pPinHandler);
 
 
 #endif /* GPIO_DRIVER_HAL_H_ */

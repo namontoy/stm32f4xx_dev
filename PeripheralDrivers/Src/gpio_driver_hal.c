@@ -259,7 +259,7 @@ eHAL_StatusMsg_t gpio_WritePin(GPIO_Handler_t *pPinHandler, uint8_t newState){
 /**
  * Función para leer el estado de un pin especifico.
  */
-uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
+eHAL_StatusMsg_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 	// Creamos una variable auxiliar la cual luego retornaremos
 	uint32_t pinValue = 0;
 
@@ -270,9 +270,9 @@ uint32_t gpio_ReadPin(GPIO_Handler_t *pPinHandler){
 	// Cargamos el valor del registro IDR, desplazado a derecha tantas veces como la ubicación
 	// del pin especifico
 	pinValue = (pPinHandler->pGPIOx->IDR >> pPinHandler->pinConfig.GPIO_PinNumber);
-	pinValue = (0x0001) & pinValue;
+	pPinHandler->pinValue = (uint8_t)((0x0001) & pinValue);
 
-	return pinValue;
+	return HAL_SUCCESS;
 }
 
 /**/
